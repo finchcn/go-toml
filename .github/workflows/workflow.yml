@@ -27,6 +27,6 @@ jobs:
         run: go test -race ./...
   release-check:
     if: ${{ github.ref != 'refs/heads/v2' }}
-    uses: pelletier/go-toml/.github/workflows/release.yml@v2
+    uses: ./.github/workflows/release.yml
     with:
       args: --snapshot
