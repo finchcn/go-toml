@@ -631,6 +631,18 @@ func (enc *Encoder) keyToString(k reflect.Value) (string, error) {
 			return "", fmt.Errorf("toml: error marshalling key %v from text: %w", k, err)
 		}
 		return string(keyB), nil
+
+	case keyType.Kind() == reflect.Int || keyType.Kind() == reflect.Int8 || keyType.Kind() == reflect.Int16 || keyType.Kind() == reflect.Int32 || keyType.Kind() == reflect.Int64:
+		return strconv.FormatInt(k.Int(), 10), nil
+
+	case keyType.Kind() == reflect.Uint || keyType.Kind() == reflect.Uint8 || keyType.Kind() == reflect.Uint16 || keyType.Kind() == reflect.Uint32 || keyType.Kind() == reflect.Uint64:
+		return strconv.FormatUint(k.Uint(), 10), nil
+
+	case keyType.Kind() == reflect.Float32:
+		return strconv.FormatFloat(k.Float(), 'f', -1, 32), nil
+
+	case keyType.Kind() == reflect.Float64:
+		return strconv.FormatFloat(k.Float(), 'f', -1, 64), nil
 	}
 	return "", fmt.Errorf("toml: type %s is not supported as a map key", keyType.Kind())
 }

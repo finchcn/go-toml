@@ -587,13 +587,69 @@ foo = 42
 `,
 		},
 		{
-			desc: "invalid map key",
+			desc: "int map key",
 			v:    map[int]interface{}{1: "a"},
+			expected: `1 = 'a'
+`,
+		},
+		{
+			desc: "int8 map key",
+			v:    map[int8]interface{}{1: "a"},
+			expected: `1 = 'a'
+`,
+		},
+		{
+			desc: "int64 map key",
+			v:    map[int64]interface{}{1: "a"},
+			expected: `1 = 'a'
+`,
+		},
+		{
+			desc: "uint map key",
+			v:    map[uint]interface{}{1: "a"},
+			expected: `1 = 'a'
+`,
+		},
+		{
+			desc: "uint8 map key",
+			v:    map[uint8]interface{}{1: "a"},
+			expected: `1 = 'a'
+`,
+		},
+		{
+			desc: "uint64 map key",
+			v:    map[uint64]interface{}{1: "a"},
+			expected: `1 = 'a'
+`,
+		},
+		{
+			desc: "float32 map key",
+			v: map[float32]interface{}{
+				1.1:    "a",
+				1.0020: "b",
+			},
+			expected: `'1.002' = 'b'
+'1.1' = 'a'
+`,
+		},
+		{
+			desc: "float64 map key",
+			v: map[float64]interface{}{
+				1.1:    "a",
+				1.0020: "b",
+			},
+			expected: `'1.002' = 'b'
+'1.1' = 'a'
+`,
+		},
+		{
+			desc: "invalid map key",
+			v:    map[struct{ int }]interface{}{{1}: "a"},
 			err:  true,
 		},
 		{
 			desc:     "invalid map key but empty",
-			v:        map[int]interface{}{},
+			v:        map[struct{ int }]interface{}{},
 			expected: "",
 		},
 		{
@@ -1565,7 +1621,6 @@ func ExampleMarshal() {
 // configuration file that has commented out sections (example from
 // go-graphite/graphite-clickhouse).
 func ExampleMarshal_commented() {
-
 	type Common struct {
 		Listen               string        `toml:"listen"                     comment:"general listener"`
 		PprofListen          string        `toml:"pprof-listen"               comment:"listener to serve /debug/pprof requests. '-pprof' argument overrides it"`

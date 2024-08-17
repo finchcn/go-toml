@@ -205,7 +205,6 @@ func TestUnmarshal_Floats(t *testing.T) {
 		testFn   func(t *testing.T, v float64)
 		err      bool
 	}{
-
 		{
 			desc:     "float pi",
 			input:    `3.1415`,
@@ -840,8 +839,10 @@ huey = 'dewey'
 
 				return test{
 					target: &doc{},
-					expected: &doc{A: []interface{}{"0", "1", "2", "3", "4", "5", "6",
-						"7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17"}},
+					expected: &doc{A: []interface{}{
+						"0", "1", "2", "3", "4", "5", "6",
+						"7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17",
+					}},
 				}
 			},
 		},
@@ -1697,16 +1698,6 @@ B = "data"`,
 			},
 		},
 		{
-			desc:  "empty map into map with invalid key type",
-			input: ``,
-			gen: func() test {
-				return test{
-					target:   &map[int]string{},
-					expected: &map[int]string{},
-				}
-			},
-		},
-		{
 			desc:  "into map with convertible key type",
 			input: `A = "hello"`,
 			gen: func() test {
@@ -1938,6 +1929,150 @@ B = "data"`,
 				doc := map[string]*[]string{}
 				return test{
 					target: &doc,
+					err:    true,
+				}
+			},
+		},
+		{
+			desc:  "into map of int to string",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[int]string{},
+					expected: &map[int]string{1: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of int8 to string",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[int8]string{},
+					expected: &map[int8]string{1: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of int64 to string",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[int64]string{},
+					expected: &map[int64]string{1: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of uint to string",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[uint]string{},
+					expected: &map[uint]string{1: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of uint8 to string",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[uint8]string{},
+					expected: &map[uint8]string{1: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of uint64 to string",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[uint64]string{},
+					expected: &map[uint64]string{1: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of uint with invalid key",
+			input: `-1 = "a"`,
+			gen: func() test {
+				return test{
+					target: &map[uint]string{},
+					err:    true,
+				}
+			},
+		},
+		{
+			desc:  "into map of float64 to string",
+			input: `'1.01' = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[float64]string{},
+					expected: &map[float64]string{1.01: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of float64 with invalid key",
+			input: `key = "a"`,
+			gen: func() test {
+				return test{
+					target: &map[float64]string{},
+					err:    true,
+				}
+			},
+		},
+		{
+			desc:  "into map of float32 to string",
+			input: `'1.01' = "a"`,
+			gen: func() test {
+				return test{
+					target:   &map[float32]string{},
+					expected: &map[float32]string{1.01: "a"},
+					assert: func(t *testing.T, test test) {
+						assert.Equal(t, test.expected, test.target)
+					},
+				}
+			},
+		},
+		{
+			desc:  "into map of float32 with invalid key",
+			input: `key = "a"`,
+			gen: func() test {
+				return test{
+					target: &map[float32]string{},
+					err:    true,
+				}
+			},
+		},
+		{
+			desc:  "invalid map key type",
+			input: `1 = "a"`,
+			gen: func() test {
+				return test{
+					target: &map[struct{ int }]string{},
 					err:    true,
 				}
 			},
@@ -2653,7 +2788,7 @@ func TestIssue772(t *testing.T) {
 		FileHandling `toml:"filehandling"`
 	}
 
-	var defaultConfigFile = []byte(`
+	defaultConfigFile := []byte(`
 		[filehandling]
 		pattern = "reach-masterdev-"`)
 
@@ -2750,7 +2885,7 @@ func TestIssue866(t *testing.T) {
 		PipelineMapping map[string]*Pipeline `toml:"pipelines"`
 	}
 
-	var badToml = `
+	badToml := `
 [pipelines.register]
 mapping.inst.req = [
     ["param1", "value1"],
@@ -2768,7 +2903,7 @@ mapping.inst.res = [
 		t.Fatal("unmarshal failed with mismatch value")
 	}
 
-	var goodTooToml = `
+	goodTooToml := `
 [pipelines.register]
 mapping.inst.req = [
     ["param1", "value1"],
@@ -2783,7 +2918,7 @@ mapping.inst.req = [
 		t.Fatal("unmarshal failed with mismatch value")
 	}
 
-	var goodToml = `
+	goodToml := `
 [pipelines.register.mapping.inst]
 req = [
     ["param1", "value1"],
@@ -3362,7 +3497,7 @@ func TestOmitEmpty(t *testing.T) {
 		X []elem `toml:",inline"`
 	}
 
-	d := doc{X: []elem{elem{
+	d := doc{X: []elem{{
 		Foo: "test",
 		Inner: inner{
 			V: "alue",
@@ -3785,7 +3920,6 @@ func (k *CustomUnmarshalerKey) UnmarshalTOML(value *unstable.Node) error {
 	}
 	k.A = item
 	return nil
-
 }
 
 func TestUnmarshal_CustomUnmarshaler(t *testing.T) {
