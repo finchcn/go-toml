@@ -1022,7 +1022,17 @@ func (d *decoder) unmarshalInteger(value *unstable.Node, v reflect.Value) error 
 	return nil
 }
 
+var durationType = reflect.TypeOf((time.Duration)(0))
+
 func (d *decoder) unmarshalString(value *unstable.Node, v reflect.Value) error {
+	if v.Type() == durationType {
+		x, err := time.ParseDuration(string(value.Data))
+		if err != nil {
+			return unstable.NewParserError(d.p.Raw(value.Raw), d.typeMismatchString("string", v.Type()))
+		}
+		v.Set(reflect.ValueOf(x))
+		return nil
+	}
 	switch v.Kind() {
 	case reflect.String:
 		v.SetString(string(value.Data))
